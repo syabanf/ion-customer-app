@@ -115,12 +115,14 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
         data: {'score': score},
       );
       if (!mounted) return;
-      // Wave 25 — confetti + branded snackbar on CSAT submit success.
-      IonConfetti.celebrate(context);
+      // Wave 70 — confetti removed. Rating a closed support ticket
+      // isn't a celebratory moment for the customer; the party trick
+      // came across as patronizing. A simple thank-you snackbar
+      // acknowledges the submission and gets out of the way.
       IonSnackbar.show(
         context,
-        'Thanks for the feedback!',
-        icon: Icons.celebration_outlined,
+        'Thanks for the feedback',
+        icon: Icons.check_circle_outline,
       );
       setState(() => _future = _load());
     } catch (e) {

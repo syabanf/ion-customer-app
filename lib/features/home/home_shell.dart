@@ -290,84 +290,14 @@ class _HomeTab extends StatelessWidget {
         ),
         IonGap.xlGap,
 
-        // 2) Plan hero as a bento — big photo card + 2 mini stats.
-        //    IonPaletteBuilder extracts the dominant color from the
-        //    plan photo and forwards it to the secondary mini stat
-        //    (Spotify-style content-aware UI).
+        // 2) Wave 70 — lead with the actionable metrics. Per the PRD
+        //    audit, an unpaid bill is the single most important thing
+        //    a customer comes to this app to handle; surfacing it
+        //    *before* the plan hero gets it visible above the fold on
+        //    every device. The plan hero (below) keeps brand identity
+        //    + upgrade affordance but no longer hogs the lead slot.
         FadeSlideIn(
           delay: const Duration(milliseconds: 60),
-          child: Padding(
-            padding: IonGap.pageH,
-            child: IonPaletteBuilder(
-              imageUrl: _planPhotoUrl(planSpeed),
-              fallback: IonColors.indigo500,
-              builder: (context, photoAccent) => IonBentoGrid(
-                height: 220,
-                feature: IonPhotoCard(
-                  imageUrl: _planPhotoUrl(planSpeed),
-                  // Wave 24 — pulse the "Live" ribbon via IonHeartbeat
-                  // so the eye snaps to it immediately. amplitude kept
-                  // gentle (0.06) so it doesn't look frantic.
-                  ribbon: isActive
-                      ? const IonHeartbeat(
-                          amplitude: 0.06,
-                          period: Duration(milliseconds: 1800),
-                          child: IonRibbonBadge(
-                            label: 'Live',
-                            color: IonColors.mint500,
-                          ),
-                        )
-                      : null,
-                  eyebrow: 'Current plan',
-                  title: planName,
-                  // Wave 39 — hero subtitle no longer mentions "Renews"
-                  // because the tertiary bento tile (below) is the
-                  // authoritative renewal surface. Repeating it both
-                  // places made the screen read like an error.
-                  subtitle: planSpeed == null
-                      ? 'Manage your services'
-                      : '$planSpeed Mbps · Active',
-                  trailing: IonCircleIconButton(
-                    icon: Icons.upgrade_rounded,
-                    onTap: () => GoRouter.of(context)
-                        .push('/services/change-plan', extra: plan),
-                    tone: IonCircleIconTone.light,
-                  ),
-                  onTap: () => onJumpToTab(1),
-                ),
-                secondary: _MiniStatTile(
-                  icon: Icons.speed_rounded,
-                  label: 'Plan',
-                  value: planSpeed == null ? '—' : '$planSpeed',
-                  suffix: 'Mbps',
-                  // Content-aware: secondary stat picks up the
-                  // dominant photo color once extraction completes.
-                  accent: photoAccent,
-                ),
-                // Wave 28 — was a duplicate "Status: Live" mini stat
-                // (the photo card already has a LIVE ribbon, the live
-                // tracker says "Live · updated 2 min ago"). Replaced
-                // with renewal info — actually useful info-per-pixel
-                // that the customer can't get elsewhere on the home tab.
-                //
-                // Wave 39 — when we have an actual renewal date, show
-                // it under a "Renews" label. When we don't, the empty
-                // dash placeholder felt broken — fall back to
-                // "Monthly" under a "Cycle" label so the tile always
-                // carries real meaning instead of looking half-loaded.
-                tertiary: _renewTertiaryTile(plan),
-              ),
-            ),
-          ),
-        ),
-
-        // 3) Trend-aware metric row
-        //    Wave 39 — removed the Live tech-tracker card. The bento
-        //    above already carries the active-WO signal (LIVE ribbon
-        //    + "Technician · In progress" was duplicating it), and
-        //    customers can drill from the photo card itself.
-        FadeSlideIn(
-          delay: const Duration(milliseconds: 120),
           child: Padding(
             padding: IonGap.pageH,
             child: Row(
@@ -410,6 +340,56 @@ class _HomeTab extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+
+        IonGap.xlGap,
+
+        // 3) Plan hero — demoted from lead position in Wave 70. Still
+        //    surfaces brand identity + upgrade CTA, but no longer
+        //    pushes the bill snapshot below the fold. Wave 70 also
+        //    dropped:
+        //      * IonPaletteBuilder — the 3-5s photo-palette extraction
+        //        wasn't worth the 4G latency cost for a secondary
+        //        accent shade.
+        //      * IonHeartbeat pulse on the "Live" ribbon — continuous
+        //        animation on a static signal was visual noise.
+        FadeSlideIn(
+          delay: const Duration(milliseconds: 120),
+          child: Padding(
+            padding: IonGap.pageH,
+            child: IonBentoGrid(
+              height: 220,
+              feature: IonPhotoCard(
+                imageUrl: _planPhotoUrl(planSpeed),
+                ribbon: isActive
+                    ? const IonRibbonBadge(
+                        label: 'Live',
+                        color: IonColors.mint500,
+                      )
+                    : null,
+                eyebrow: 'Current plan',
+                title: planName,
+                subtitle: planSpeed == null
+                    ? 'Manage your services'
+                    : '$planSpeed Mbps · Active',
+                trailing: IonCircleIconButton(
+                  icon: Icons.upgrade_rounded,
+                  onTap: () => GoRouter.of(context)
+                      .push('/services/change-plan', extra: plan),
+                  tone: IonCircleIconTone.light,
+                ),
+                onTap: () => onJumpToTab(1),
+              ),
+              secondary: _MiniStatTile(
+                icon: Icons.speed_rounded,
+                label: 'Plan',
+                value: planSpeed == null ? '—' : '$planSpeed',
+                suffix: 'Mbps',
+                accent: IonColors.indigo500,
+              ),
+              tertiary: _renewTertiaryTile(plan),
             ),
           ),
         ),
