@@ -1,0 +1,62 @@
+name: ion_customer_app
+description: ION Customer App — self-service portal for ION broadband customers. Surfaces bills, services, support tickets, and self-initiated plan-change / relocation flows via the /portal/* OTP-authenticated API.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ---- State management ----
+  # (Inlined from the former ion_core_shared; see lib/shared.dart for
+  # the in-app barrel. Wave 16 separated each mobile app so they share
+  # no source.)
+  flutter_bloc: ^8.1.6
+  hydrated_bloc: ^9.1.5
+  equatable: ^2.0.5
+
+  # ---- Routing ----
+  go_router: ^14.2.0
+
+  # ---- DI ----
+  get_it: ^7.7.0
+
+  # ---- Networking + storage ----
+  dio: ^5.7.0
+  flutter_secure_storage: ^9.2.2
+  path_provider: ^2.1.4
+  shared_preferences: ^2.3.2
+  connectivity_plus: ^6.0.5
+  confetti: ^0.7.0
+  palette_generator: ^0.3.3+5
+
+  # ---- Display ----
+  intl: ^0.19.0
+  google_fonts: ^6.2.1
+
+  # ---- Customer-app-specific ----
+  image_picker: ^1.1.2
+  url_launcher: ^6.3.0
+
+  # ---- GPS (live tech tracker, relocation pin) ----
+  geolocator: ^13.0.1
+
+  # ---- Push notifications (FCM scaffold; live behind a kill-switch
+  # until the Firebase service-account JSON is provisioned — see
+  # docs/backlog.md "What's left" §FCM/APNS) ----
+  firebase_core: ^3.6.0
+  firebase_messaging: ^15.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/

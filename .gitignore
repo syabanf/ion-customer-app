@@ -1,0 +1,40 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+*.ipr
+*.iws
+
+# Generated platform folders — recreate with `flutter create .`
+# Keep these tracked normally once `flutter create` has been run.
+# (Uncomment the next four lines if you don't want platforms in version control)
+# android/
+# ios/
+# web/
+# linux/
+# macos/
+# windows/
+
+# IDE
+.idea/
+.vscode/
+
+# Flutter analyzer
+analyzer-*.log
+
+# Secrets — never commit
+*.jks
+*.keystore
+key.properties
+ios/Runner/GoogleService-Info.plist
+android/app/google-services.json
+
+# Coverage
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db

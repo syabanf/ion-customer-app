@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    Wave 23 — branded splash. Renders an ION-aurora background +
+    centered logo + breathing animation while Flutter is downloading
+    the bundle. Hides itself the moment `flutter-view` mounts.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="ION Customer — manage your ION services on the go.">
+  <meta name="theme-color" content="#111111">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ION Customer">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>ION Customer</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body { margin: 0; padding: 0; background: #FAFBFD; }
+    #ion-splash {
+      position: fixed; inset: 0; z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      background:
+        radial-gradient(80% 60% at 30% 20%, rgba(79,70,229,0.18), transparent 60%),
+        radial-gradient(70% 50% at 80% 80%, rgba(16,185,129,0.18), transparent 60%),
+        linear-gradient(135deg, #FAFBFD 0%, #F1F4F8 100%);
+      transition: opacity 320ms cubic-bezier(0.2,0.8,0.2,1);
+    }
+    #ion-splash.hidden { opacity: 0; pointer-events: none; }
+    #ion-splash .mark {
+      width: 80px; height: 80px; border-radius: 22px;
+      background: #111111;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.18), 0 6px 12px rgba(15,23,42,0.06);
+      animation: ion-breathe 2.4s cubic-bezier(0.4,0,0.2,1) infinite;
+    }
+    #ion-splash .mark svg { width: 36px; height: 36px; }
+    @keyframes ion-breathe {
+      0%, 100% { transform: scale(1.0); }
+      50%      { transform: scale(1.06); }
+    }
+  </style>
+</head>
+<body>
+  <div id="ion-splash">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill="#fff"/>
+      </svg>
+    </div>
+  </div>
+  <script>
+    const splash = document.getElementById('ion-splash');
+    const hideIfReady = () => {
+      if (document.querySelector('flutter-view')) {
+        splash.classList.add('hidden');
+        setTimeout(() => splash.remove(), 360);
+        return true;
+      }
+      return false;
+    };
+    if (!hideIfReady()) {
+      const obs = new MutationObserver(() => { if (hideIfReady()) obs.disconnect(); });
+      obs.observe(document.body, {childList: true, subtree: true});
+    }
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
