@@ -458,6 +458,16 @@ class _HomeTab extends StatelessWidget {
                   accent: IonColors.plum500,
                   onTap: () => GoRouter.of(context).push('/services/relocation'),
                 ),
+                // Wave 67 (C1) — live tech tracker entry from quick access.
+                // The page itself reads the active WO via /portal/active-wo/
+                // tech-location; when no active WO, the destination
+                // gracefully shows an empty state.
+                IonQuickAccessItem(
+                  icon: Icons.my_location_rounded,
+                  label: 'Track tech',
+                  accent: IonColors.mint500,
+                  onTap: () => GoRouter.of(context).push('/services/track'),
+                ),
                 IonQuickAccessItem(
                   icon: Icons.travel_explore_rounded,
                   label: 'Coverage',

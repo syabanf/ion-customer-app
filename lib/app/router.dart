@@ -12,6 +12,7 @@ import '../features/onboarding/self_order_page.dart';
 import '../features/services/buy_addon_page.dart';
 import '../features/services/change_plan_page.dart';
 import '../features/services/relocation_page.dart';
+import '../features/services/tech_tracker_page.dart';
 import '../features/support/new_ticket_page.dart';
 import '../features/support/ticket_detail_page.dart';
 
@@ -102,6 +103,12 @@ class CustomerRouter {
       GoRoute(
         path: '/services/relocation',
         pageBuilder: (_, __) => modalPage(child: RelocationRequestPage(api: api)),
+      ),
+      // Wave 67 (C1) — live tech tracker. Customer-facing surface
+      // for "where's my technician?" during an active visit.
+      GoRoute(
+        path: '/services/track',
+        pageBuilder: (_, __) => slidePage(child: TechTrackerPage(api: api)),
       ),
       GoRoute(
         path: '/account/terminate',
