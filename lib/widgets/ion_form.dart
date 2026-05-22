@@ -2440,173 +2440,6 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-/// Decorative gradient orb — a soft blurred sphere absolutely
-/// positioned behind hero content for that "premium tech" feel.
-/// Drop multiple inside a Stack with different colors + alignments
-/// for a layered aurora effect.
-class IonGradientOrb extends StatelessWidget {
-  const IonGradientOrb({
-    super.key,
-    this.color = IonColors.indigo500,
-    this.size = 220,
-    this.alpha = 0.32,
-    this.alignment = Alignment.topRight,
-  });
-  final Color color;
-  final double size;
-  final double alpha;
-  final Alignment alignment;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: alignment,
-      child: IgnorePointer(
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                color.withValues(alpha: alpha),
-                color.withValues(alpha: 0),
-              ],
-              stops: const [0.0, 1.0],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Aurora hero card — premium variant of IonHeroCard. Uses the
-/// 3-stop aurora gradient + two decorative orbs in opposite corners.
-/// Pair with IonGlowingDot inside `metaChips` for a "live" feel.
-class IonAuroraCard extends StatelessWidget {
-  const IonAuroraCard({
-    super.key,
-    required this.title,
-    this.eyebrow,
-    this.subtitle,
-    this.metaChips = const [],
-    this.trailing,
-    this.height = 200,
-    this.gradient,
-    this.onTap,
-  });
-  final String? eyebrow;
-  final String title;
-  final String? subtitle;
-  final List<Widget> metaChips;
-  final Widget? trailing;
-  final double height;
-  final Gradient? gradient;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final card = ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: SizedBox(
-        height: height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: gradient ?? IonColors.auroraGradient,
-              ),
-            ),
-            // Decorative orbs for depth.
-            const IonGradientOrb(
-              color: Colors.white,
-              size: 260,
-              alpha: 0.16,
-              alignment: Alignment.topRight,
-            ),
-            const IonGradientOrb(
-              color: IonColors.plum500,
-              size: 200,
-              alpha: 0.25,
-              alignment: Alignment.bottomLeft,
-            ),
-            if (trailing != null)
-              Positioned(top: 16, right: 16, child: trailing!),
-            Positioned(
-              left: 22,
-              right: 22,
-              bottom: 20,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (metaChips.isNotEmpty) ...[
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: metaChips,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (eyebrow != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        eyebrow!.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white.withValues(alpha: 0.85),
-                          letterSpacing: 1.4,
-                        ),
-                      ),
-                    ),
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.6,
-                      height: 1.1,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.88),
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(28),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(28),
-        onTap: onTap,
-        child: card,
-      ),
-    );
-  }
-}
 
 /// Compact stat chip — icon + number side-by-side in a tight rounded
 /// shape. Use in a Wrap for a "stats glance" row (3-5 mini KPIs).
@@ -3264,116 +3097,6 @@ class _IonHorizontalCarouselState extends State<IonHorizontalCarousel> {
     );
   }
 }
-
-/// Custom-painted inline trend chart. Smooth curve + optional shaded
-/// area below + endpoint dot.
-class IonSparkline extends StatelessWidget {
-  const IonSparkline({
-    super.key,
-    required this.points,
-    this.color = IonColors.ion500,
-    this.fillBelow = true,
-    this.thickness = 2.0,
-    this.height = 36,
-  });
-  final List<double> points;
-  final Color color;
-  final bool fillBelow;
-  final double thickness;
-  final double height;
-  @override
-  Widget build(BuildContext context) {
-    if (points.length < 2) return SizedBox(height: height);
-    // Wave 24 — RepaintBoundary isolates the custom-paint layer from
-    // its parent so scrolling a card carrying a sparkline doesn't
-    // mark the whole card dirty every frame.
-    return RepaintBoundary(
-      child: SizedBox(
-        height: height,
-        child: CustomPaint(
-          painter: _SparklinePainter(
-            points: points,
-            color: color,
-            fillBelow: fillBelow,
-            thickness: thickness,
-          ),
-          child: const SizedBox.expand(),
-        ),
-      ),
-    );
-  }
-}
-
-class _SparklinePainter extends CustomPainter {
-  _SparklinePainter({
-    required this.points,
-    required this.color,
-    required this.fillBelow,
-    required this.thickness,
-  });
-  final List<double> points;
-  final Color color;
-  final bool fillBelow;
-  final double thickness;
-  @override
-  void paint(Canvas canvas, Size size) {
-    final maxV = points.reduce((a, b) => a > b ? a : b);
-    final minV = points.reduce((a, b) => a < b ? a : b);
-    final range = (maxV - minV).abs() < 0.0001 ? 1.0 : (maxV - minV);
-    final dx = size.width / (points.length - 1);
-    Offset pt(int i) {
-      final y = size.height -
-          ((points[i] - minV) / range) * size.height * 0.88 -
-          size.height * 0.06;
-      return Offset(i * dx, y);
-    }
-
-    final path = Path()..moveTo(0, pt(0).dy);
-    for (var i = 0; i < points.length - 1; i++) {
-      final p0 = pt(i);
-      final p1 = pt(i + 1);
-      final cx = (p0.dx + p1.dx) / 2;
-      path.cubicTo(cx, p0.dy, cx, p1.dy, p1.dx, p1.dy);
-    }
-    if (fillBelow) {
-      final fillPath = Path.from(path)
-        ..lineTo(size.width, size.height)
-        ..lineTo(0, size.height)
-        ..close();
-      final shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          color.withValues(alpha: 0.22),
-          color.withValues(alpha: 0.02),
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-      canvas.drawPath(
-        fillPath,
-        Paint()
-          ..shader = shader
-          ..style = PaintingStyle.fill,
-      );
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = thickness
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round,
-    );
-    final last = pt(points.length - 1);
-    canvas.drawCircle(last, thickness * 1.6, Paint()..color = color);
-    canvas.drawCircle(last, thickness * 0.8, Paint()..color = Colors.white);
-  }
-
-  @override
-  bool shouldRepaint(covariant _SparklinePainter old) =>
-      old.points != points || old.color != color;
-}
-
 /// Frosted-glass surface card. Soft white wash + thin border that
 /// picks up underlying gradients.
 class IonGlassCard extends StatelessWidget {
@@ -4563,3 +4286,113 @@ class _IonErrorPanel extends StatelessWidget {
     );
   }
 }
+
+/// Custom-painted inline trend chart. Smooth curve + optional shaded
+/// area below + endpoint dot.
+class IonSparkline extends StatelessWidget {
+  const IonSparkline({
+    super.key,
+    required this.points,
+    this.color = IonColors.ion500,
+    this.fillBelow = true,
+    this.thickness = 2.0,
+    this.height = 36,
+  });
+  final List<double> points;
+  final Color color;
+  final bool fillBelow;
+  final double thickness;
+  final double height;
+  @override
+  Widget build(BuildContext context) {
+    if (points.length < 2) return SizedBox(height: height);
+    // Wave 24 — RepaintBoundary isolates the custom-paint layer from
+    // its parent so scrolling a card carrying a sparkline doesn't
+    // mark the whole card dirty every frame.
+    return RepaintBoundary(
+      child: SizedBox(
+        height: height,
+        child: CustomPaint(
+          painter: _SparklinePainter(
+            points: points,
+            color: color,
+            fillBelow: fillBelow,
+            thickness: thickness,
+          ),
+          child: const SizedBox.expand(),
+        ),
+      ),
+    );
+  }
+}
+
+class _SparklinePainter extends CustomPainter {
+  _SparklinePainter({
+    required this.points,
+    required this.color,
+    required this.fillBelow,
+    required this.thickness,
+  });
+  final List<double> points;
+  final Color color;
+  final bool fillBelow;
+  final double thickness;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final maxV = points.reduce((a, b) => a > b ? a : b);
+    final minV = points.reduce((a, b) => a < b ? a : b);
+    final range = (maxV - minV).abs() < 0.0001 ? 1.0 : (maxV - minV);
+    final dx = size.width / (points.length - 1);
+    Offset pt(int i) {
+      final y = size.height -
+          ((points[i] - minV) / range) * size.height * 0.88 -
+          size.height * 0.06;
+      return Offset(i * dx, y);
+    }
+
+    final path = Path()..moveTo(0, pt(0).dy);
+    for (var i = 0; i < points.length - 1; i++) {
+      final p0 = pt(i);
+      final p1 = pt(i + 1);
+      final cx = (p0.dx + p1.dx) / 2;
+      path.cubicTo(cx, p0.dy, cx, p1.dy, p1.dx, p1.dy);
+    }
+    if (fillBelow) {
+      final fillPath = Path.from(path)
+        ..lineTo(size.width, size.height)
+        ..lineTo(0, size.height)
+        ..close();
+      final shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          color.withValues(alpha: 0.22),
+          color.withValues(alpha: 0.02),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+      canvas.drawPath(
+        fillPath,
+        Paint()
+          ..shader = shader
+          ..style = PaintingStyle.fill,
+      );
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = thickness
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+    final last = pt(points.length - 1);
+    canvas.drawCircle(last, thickness * 1.6, Paint()..color = color);
+    canvas.drawCircle(last, thickness * 0.8, Paint()..color = Colors.white);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SparklinePainter old) =>
+      old.points != points || old.color != color;
+}
+
