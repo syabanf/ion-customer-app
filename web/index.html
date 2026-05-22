@@ -72,6 +72,64 @@
       obs.observe(document.body, {childList: true, subtree: true});
     }
   </script>
+  <script>
+    // Wave 65 — disable the Flutter service worker in dev so a stale
+    // build never serves cached main.dart.js to the browser.
+    //
+    // Symptom this fixes: blank canvas after a flutter-run restart.
+    // The flutter_service_worker.js auto-installs in the browser the
+    // first time the app loads, caches main.dart.js + assets, and on
+    // subsequent visits serves the cached bundle even after the dev
+    // server rebuilds. New code paths (e.g. tests that reference new
+    // types) fail to resolve → throw → blank canvas.
+    //
+    // This block does three things, ONLY when running on a dev host:
+    //   1. Unregister any existing SWs from a prior session
+    //   2. Drop any caches they populated
+    //   3. Stub navigator.serviceWorker.register so flutter_bootstrap
+    //      can't install a new one — its bootstrap code wraps the
+    //      register call in .catch() so the rejection is harmless
+    //
+    // In production (any non-dev hostname) this is a no-op and the
+    // SW behaves exactly as before — offline support, asset caching,
+    // PWA installability all unchanged.
+    (function () {
+      var host = window.location.hostname;
+      var isDev = host === 'localhost'
+               || host === '127.0.0.1'
+               || host === '0.0.0.0'
+               || /^192\.168\./.test(host)
+               || /^10\./.test(host)
+               || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+      if (!isDev || !('serviceWorker' in navigator)) return;
+
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      }).catch(function () { /* ignore — best-effort cleanup */ });
+
+      if (window.caches && window.caches.keys) {
+        window.caches.keys().then(function (keys) {
+          keys.forEach(function (k) { window.caches.delete(k); });
+        }).catch(function () { /* ignore */ });
+      }
+
+      // Prevent flutter_bootstrap from registering a new SW. We return
+      // a rejected Promise — Flutter's bootstrap wraps the call in
+      // .catch() so this is silent and non-fatal.
+      var noopRegister = function () {
+        return Promise.reject(new Error('SW registration suppressed (dev)'));
+      };
+      try {
+        Object.defineProperty(navigator.serviceWorker, 'register', {
+          value: noopRegister,
+          writable: false,
+          configurable: false,
+        });
+      } catch (_) {
+        navigator.serviceWorker.register = noopRegister;
+      }
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
