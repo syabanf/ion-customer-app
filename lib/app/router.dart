@@ -119,6 +119,44 @@ class CustomerRouter {
         pageBuilder: (_, __) =>
             slidePage(child: NotificationsPage(api: api)),
       ),
+
+      // ----------------------------------------------------------------
+      // Wave 91 (UX consolidation) — legacy + alias redirects.
+      //
+      // We never want to drop an existing route, because customers
+      // receive push notifications, WhatsApp deep-links, and email
+      // links that bake the URL into the payload. Renaming a route
+      // would silently 404 every old notification in the wild.
+      //
+      // Redirects below cover three classes of incoming URL:
+      //
+      //  1. `/support/tickets/:id` (and `/support/tickets/new`) —
+      //     an older naming convention used in earlier waves and
+      //     still referenced by some push templates. Canonical is
+      //     `/tickets/:id`.
+      //  2. `/services/terminate` — termination is conceptually a
+      //     service-lifecycle action; the destination still lives at
+      //     `/account/terminate` (Account tab owns destructive surface
+      //     area) but the symmetric "services" URL also works.
+      //  3. `/account/notifications` — some early notification deep
+      //     links nested the inbox under Account.
+      // ----------------------------------------------------------------
+      GoRoute(
+        path: '/support/tickets/new',
+        redirect: (_, __) => '/tickets/new',
+      ),
+      GoRoute(
+        path: '/support/tickets/:id',
+        redirect: (_, s) => '/tickets/${s.pathParameters['id']}',
+      ),
+      GoRoute(
+        path: '/services/terminate',
+        redirect: (_, __) => '/account/terminate',
+      ),
+      GoRoute(
+        path: '/account/notifications',
+        redirect: (_, __) => '/notifications',
+      ),
     ],
   );
 }

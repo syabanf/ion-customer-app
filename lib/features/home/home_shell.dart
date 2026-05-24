@@ -172,12 +172,71 @@ class _CustomerHomeShellState extends State<CustomerHomeShell> {
         icon: Icons.support_agent_rounded,
         tag: 'PAGE',
       ),
+      // Wave 91 (UX consolidation) — Account tab was missing from
+      // search even though it owned Profile / Theme / Identity /
+      // Sign out / Terminate. Now reachable by searching any of
+      // "account", "profile", "settings", "sign out".
+      const IonSearchEntry(
+        id: 'tab:account',
+        title: 'Account',
+        subtitle: 'Profile, settings, identity, theme',
+        icon: Icons.person_outline_rounded,
+        tag: 'PAGE',
+      ),
       const IonSearchEntry(
         id: 'route:/notifications',
         title: 'Notifications',
         subtitle: 'Your account activity feed',
         icon: Icons.notifications_none_rounded,
         tag: 'PAGE',
+      ),
+      // Wave 91 (UX consolidation) — surface the deep-linked self-
+      // service flows in global search. Previously these were only
+      // reachable from the Home quick-access grid; if the user knew
+      // the action by name (e.g. "buy add-on") search would silently
+      // miss it. All four are real GoRoutes — typing any prefix now
+      // jumps straight to the modal.
+      const IonSearchEntry(
+        id: 'route:/services/change-plan',
+        title: 'Change plan',
+        subtitle: 'Upgrade or downgrade your internet plan',
+        icon: Icons.upgrade_rounded,
+        tag: 'ACTION',
+      ),
+      const IonSearchEntry(
+        id: 'route:/services/buy-addon',
+        title: 'Buy add-on',
+        subtitle: 'Static IP, extra device, mesh router…',
+        icon: Icons.add_box_outlined,
+        tag: 'ACTION',
+      ),
+      const IonSearchEntry(
+        id: 'route:/services/relocation',
+        title: 'Relocate service',
+        subtitle: 'Move your connection to a new address',
+        icon: Icons.location_on_outlined,
+        tag: 'ACTION',
+      ),
+      const IonSearchEntry(
+        id: 'route:/services/track',
+        title: 'Track technician',
+        subtitle: 'Live location during an active visit',
+        icon: Icons.my_location_rounded,
+        tag: 'ACTION',
+      ),
+      const IonSearchEntry(
+        id: 'route:/coverage-check',
+        title: 'Coverage check',
+        subtitle: 'Verify ION availability for an address',
+        icon: Icons.travel_explore_rounded,
+        tag: 'ACTION',
+      ),
+      const IonSearchEntry(
+        id: 'route:/tickets/new',
+        title: 'New ticket',
+        subtitle: 'Report an issue or ask a question',
+        icon: Icons.add_rounded,
+        tag: 'ACTION',
       ),
       // Invoices (dynamic).
       for (final inv in _invoices.whereType<Map<String, dynamic>>().take(10))
@@ -210,13 +269,25 @@ class _CustomerHomeShellState extends State<CustomerHomeShell> {
     if (!mounted) return;
     final id = picked.id;
     if (id.startsWith('tab:')) {
-      final names = {'home': 0, 'services': 1, 'bills': 2, 'support': 3};
+      // Wave 91 (UX consolidation) — added 'account' (was silently
+      // absent so search → Account would no-op).
+      final names = {
+        'home': 0,
+        'services': 1,
+        'bills': 2,
+        'support': 3,
+        'account': 4,
+      };
       final next = names[id.substring(4)];
       if (next != null) setState(() => _tab = next);
     } else if (id.startsWith('route:')) {
       GoRouter.of(context).push(id.substring(6));
     } else if (id.startsWith('ticket:')) {
-      GoRouter.of(context).push('/support/tickets/${id.substring(7)}');
+      // Wave 91 (UX consolidation) — search jumps to the canonical
+      // `/tickets/:id` route. The router additionally accepts the
+      // legacy `/support/tickets/:id` alias as a redirect so external
+      // deep links keep working.
+      GoRouter.of(context).push('/tickets/${id.substring(7)}');
     } else if (id.startsWith('invoice:')) {
       setState(() => _tab = 2); // jump to Bills tab
     }
